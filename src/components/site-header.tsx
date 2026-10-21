@@ -1,14 +1,61 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { useCart } from "@/context/cart-context";
+import { IconBag, IconSearch } from "@/components/icons";
+
+type NavItem = {
+  href: string;
+  label: string;
+  match: (pathname: string) => boolean;
+};
+
+const NAV: NavItem[] = [
+  {
+    href: "/products",
+    label: "Shop",
+    match: (path) =>
+      path === "/products" ||
+      path.startsWith("/products/") ||
+      path.startsWith("/category/") ||
+      path === "/categories" ||
+      path.startsWith("/search"),
+  },
+  {
+    href: "/how-it-works",
+    label: "How it works",
+    match: (path) => path === "/how-it-works",
+  },
+  {
+    href: "/mission",
+    label: "Our mission",
+    match: (path) => path === "/mission" || path === "/impact",
+  },
+  {
+    href: "/about",
+    label: "About",
+    match: (path) => path === "/about" || path === "/faq",
+  },
+];
+
+function navLinkClass(active: boolean) {
+  return [
+    "relative rounded-full px-3 py-1.5 text-sm font-medium transition-colors",
+    active
+      ? "bg-[#e8f4fa] text-[#0077b6]"
+      : "text-[#6b7280] hover:bg-[#f4f6f8] hover:text-[#1a1a2e]",
+  ].join(" ");
+}
 
 export function SiteHeader() {
   const { itemCount } = useCart();
   const router = useRouter();
+  const pathname = usePathname();
   const [query, setQuery] = useState("");
+
+  const cartActive = pathname === "/cart" || pathname === "/checkout";
 
   function onSearch(e: FormEvent) {
     e.preventDefault();
@@ -18,59 +65,61 @@ export function SiteHeader() {
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b border-stone-200/80 bg-[#faf8f5]/90 backdrop-blur-md">
-      <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between gap-6">
-          <Link href="/" className="group flex items-baseline gap-2">
-            <span className="font-display text-2xl font-semibold tracking-tight text-teal-950">
-              Meridian
-            </span>
-            <span className="text-xs font-medium uppercase tracking-[0.2em] text-teal-700/70">
-              Market
+    <header className="sticky top-0 z-50 border-b border-[#e5e7eb] bg-white">
+      <p className="border-b border-[#e5e7eb] bg-[#e8f4fa] py-2 text-center text-xs font-medium text-[#0077b6] sm:text-sm">
+        Free shipping on orders over $100
+      </p>
+      <div className="mx-auto w-full max-w-6xl px-4 py-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex items-center justify-between gap-6">
+            <Link href="/" className="text-xl font-semibold tracking-tight text-[#1a1a2e]">
+              Meridian<span className="text-[#0077b6]">.</span>
+            </Link>
+            <nav className="hidden items-center gap-1 md:flex" aria-label="Main">
+              {NAV.map((item) => {
+                const active = item.match(pathname);
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={navLinkClass(active)}
+                    aria-current={active ? "page" : undefined}
+                  >
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </nav>
+          </div>
+
+          <form onSubmit={onSearch} className="relative flex-1 lg:max-w-sm">
+            <IconSearch className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9ca3af]" />
+            <input
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search products"
+              className="w-full rounded-full border border-[#e5e7eb] bg-[#fafafa] py-2.5 pl-10 pr-4 text-sm outline-none focus:border-[#0077b6] focus:ring-2 focus:ring-[#0077b6]/15"
+              aria-label="Search products"
+            />
+          </form>
+
+          <Link
+            href="/cart"
+            className={navLinkClass(cartActive)}
+            aria-current={cartActive ? "page" : undefined}
+          >
+            <span className="inline-flex items-center gap-2">
+              <IconBag className="h-5 w-5" />
+              Cart
+              {itemCount > 0 && (
+                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[#0077b6] px-1 text-xs font-bold text-white">
+                  {itemCount}
+                </span>
+              )}
             </span>
           </Link>
-          <nav className="hidden items-center gap-6 text-sm font-medium text-stone-600 md:flex">
-            <Link href="/products" className="hover:text-teal-900 transition-colors">
-              Shop all
-            </Link>
-            <Link href="/categories" className="hover:text-teal-900 transition-colors">
-              Categories
-            </Link>
-          </nav>
         </div>
-
-        <form
-          onSubmit={onSearch}
-          className="flex flex-1 items-center gap-2 sm:max-w-md lg:max-w-lg"
-        >
-          <input
-            type="search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search products…"
-            className="w-full rounded-full border border-stone-200 bg-white px-4 py-2.5 text-sm text-stone-800 shadow-sm outline-none ring-teal-600/20 placeholder:text-stone-400 focus:border-teal-600 focus:ring-2"
-            aria-label="Search products"
-          />
-          <button
-            type="submit"
-            className="shrink-0 rounded-full bg-teal-900 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-teal-800"
-          >
-            Search
-          </button>
-        </form>
-
-        <Link
-          href="/cart"
-          className="inline-flex items-center justify-center gap-2 rounded-full border border-stone-200 bg-white px-4 py-2.5 text-sm font-medium text-stone-800 shadow-sm transition hover:border-teal-300 hover:text-teal-900"
-        >
-          <span aria-hidden>🛒</span>
-          Cart
-          {itemCount > 0 && (
-            <span className="inline-flex min-w-6 items-center justify-center rounded-full bg-amber-400 px-1.5 text-xs font-bold text-teal-950">
-              {itemCount}
-            </span>
-          )}
-        </Link>
       </div>
     </header>
   );

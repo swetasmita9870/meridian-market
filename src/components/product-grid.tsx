@@ -4,9 +4,10 @@ import { ProductCard } from "./product-card";
 export function ProductGrid({ products }: { products: Product[] }) {
   if (products.length === 0) {
     return (
-      <p className="rounded-2xl border border-dashed border-stone-300 bg-white px-6 py-16 text-center text-stone-600">
-        No products found. Try another search or category.
-      </p>
+      <div className="rounded-xl border border-dashed border-[#e5e7eb] bg-white px-6 py-16 text-center">
+        <p className="font-medium text-[#1a1a2e]">No products found</p>
+        <p className="mt-2 text-sm text-[#6b7280]">Try another search or category.</p>
+      </div>
     );
   }
 

@@ -10,19 +10,24 @@ export function StarRating({
 
   return (
     <div
-      className={`inline-flex items-center gap-0.5 ${text}`}
+      className={`inline-flex items-center gap-1 ${text}`}
       aria-label={`Rating ${rating} out of 5`}
     >
-      {stars.map((n) => (
-        <span
-          key={n}
-          className={n <= Math.round(rating) ? "text-amber-500" : "text-stone-300"}
-          aria-hidden
-        >
-          ★
-        </span>
-      ))}
-      <span className="ml-1 text-stone-500 tabular-nums">{rating.toFixed(1)}</span>
+      <span className="flex gap-0.5" aria-hidden>
+        {stars.map((n) => (
+          <span
+            key={n}
+            className={
+              n <= Math.round(rating) ? "text-amber-400" : "text-zinc-200"
+            }
+          >
+            ★
+          </span>
+        ))}
+      </span>
+      <span className="text-xs font-medium text-zinc-500 tabular-nums">
+        {rating.toFixed(1)}
+      </span>
     </div>
   );
 }
